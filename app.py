@@ -2,22 +2,17 @@ import os
 import numpy as np
 import cv2
 from flask import Flask, request, jsonify
-import tensorflow as tf
+from tensorflow.keras.models import load_model
 from tensorflow.keras.applications.resnet50 import preprocess_input
 
 # === Inisialisasi Flask App ===
 app = Flask(__name__)
 
-# === Load Model TFLite ===
-MODEL_PATH = 'best_my_model.tflite'
-interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
-interpreter.allocate_tensors()
+# === Load Model ===
+MODEL_PATH = 'resnet50_clahe_augmented_model_tacc_73.h5'
+model = load_model(MODEL_PATH)
 
-# Ambil detail input dan output
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
-
-# === Class Names (sesuai urutan training) ===
+# === Class Names (tanpa kelas "Eksim") ===
 class_names = [
     "Dermatitis perioral", "Karsinoma", "Pustula", "Tinea facialis", "Acne Fulminans",
     "Acne Nodules", "Blackhead", "Flek hitam", "Folikulitis", "Fungal Acne",
@@ -54,18 +49,6 @@ def preprocess_image(image_bytes):
     final = np.expand_dims(final, axis=0)  # shape: (1, 224, 224, 3)
     return final
 
-# === Fungsi Prediksi dengan TFLite ===
-def predict_tflite(image):
-    # Set input tensor
-    interpreter.set_tensor(input_details[0]['index'], image)
-
-    # Jalankan inference
-    interpreter.invoke()
-
-    # Ambil hasil output
-    output_data = interpreter.get_tensor(output_details[0]['index'])
-    return output_data
-
 # === Endpoint Prediksi ===
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -75,7 +58,7 @@ def predict():
     file = request.files['image']
     try:
         image = preprocess_image(file.read())
-        predictions = predict_tflite(image)
+        predictions = model.predict(image)
         pred_class = int(np.argmax(predictions[0]))
         confidence = float(np.max(predictions[0]))
         result = {
