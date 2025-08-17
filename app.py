@@ -21,7 +21,7 @@ output_details = interpreter.get_output_details()
 class_names = [
     "Dermatitis perioral", "Karsinoma", "Pustula", "Tinea facialis", "Acne Fulminans",
     "Acne Nodules", "Blackhead", "Flek hitam", "Folikulitis", "Fungal Acne",
-    "Herpes", "Kutil Filiform", "Melanoma", "Milia", "Tidak Ditemukan Penyakit/Kulit Normal",
+    "Herpes", "Kutil Filiform", "Melanoma", "Milia", "Tidak Ditemukan Penyakit",
     "Panu", "Papula", "Psoriasis", "Rosacea", "Whitehead"
 ]
 
